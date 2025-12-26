@@ -1,16 +1,23 @@
 import shortUrlModel from "../models/shorturl.model.js";
+import { ConflictError } from "../utils/errorHandler.js";
 
 export const saveShortUrl = async (shortUrl, fullUrl, userId) => {
-  const newUrl = new shortUrlModel({
-    fullUrl: fullUrl,
-    shortUrl: shortUrl,
-  });
+  try {
+    const newUrl = new shortUrlModel({
+      fullUrl: fullUrl,
+      shortUrl: shortUrl,
+    });
 
-  if (userId) {
-    newUrl.user_id = userId;
+    if (userId) {
+      newUrl.user_id = userId;
+    }
+
+    await newUrl.save();
+  } catch (error) {
+    console.log(error);
+    if (error.code == 11000) throw new ConflictError(error);
+    throw new Error(error);
   }
-
-  await newUrl.save();
 };
 
 export const getShortUrlFromDb = async (id) => {
