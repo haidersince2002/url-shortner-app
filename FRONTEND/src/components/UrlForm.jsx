@@ -1,18 +1,40 @@
 import { useState } from "react";
-import axios from "axios";
+import { createShortUrlApi } from "../api/shortUrl.api";
 
 const UrlForm = () => {
-  const loading = "";
+  const [loading, setLoading] = useState(false);
   const [url, setUrl] = useState("");
+  const [shortUrl, setShortUrl] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async () => {
-    const data = await axios.post("http://localhost:3000/api/create", { url });
-    console.log(data);
+    setError("");
+    setLoading(true);
+
+    try {
+      const shortUrl = await createShortUrlApi(url);
+      setShortUrl(shortUrl.url);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to shorten URL");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(shortUrl);
+    setCopied(true);
+
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
   };
 
   return (
     <>
       <div className="space-y-4">
+        <p className="text-md text-black font-medium mb-2">Enter Your URL:</p>
         <div>
           <input
             type="url"
@@ -54,15 +76,15 @@ const UrlForm = () => {
         </button>
       </div>
 
-      {/* {error && (
+      {error && (
         <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
           {error}
         </div>
       )}
 
       {shortUrl && (
-        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <p className="text-sm text-green-600 font-medium mb-2">
+        <div className="mt-6 pt-4 ">
+          <p className="text-md text-black font-semibold mb-2">
             Your shortened URL:
           </p>
           <div className="flex items-center gap-2">
@@ -70,17 +92,17 @@ const UrlForm = () => {
               type="text"
               value={shortUrl}
               readOnly
-              className="flex-1 px-3 py-2 bg-white border border-green-300 rounded-lg text-gray-700 text-sm"
+              className="flex-1 px-3 py-2 bg-white border border-zinc-400 rounded-lg text-gray-700 text-sm"
             />
             <button
               onClick={copyToClipboard}
-              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all text-sm font-medium"
+              className="px-4 py-2 bg-gray-200 text-black border-blue-300 rounded-lg hover:bg-blue-600 hover:text-white transition-all text-sm font-medium"
             >
               {copied ? "Copied!" : "Copy"}
             </button>
           </div>
         </div>
-      )} */}
+      )}
     </>
   );
 };

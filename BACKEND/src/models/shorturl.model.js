@@ -1,12 +1,27 @@
 import mongoose, { mongo } from "mongoose";
 
 const shorturlSchema = new mongoose.Schema({
-  fullUrl: { type: String, required: true },
-  shortUrl: { type: String, required: true, index: true, unique: true },
-  clicks: { type: Number, required: true, default: 0 },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  fullUrl: {
+    type: String,
+    required: true,
+  },
+  shortUrl: {
+    type: String,
+    required: true,
+    index: true,
+    unique: true,
+  },
+  clicks: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
 });
 
-const shortUrl = mongoose.model("shorturl", shorturlSchema);
+const shortUrl = mongoose.model("ShortUrl", shorturlSchema);
 
 export default shortUrl;

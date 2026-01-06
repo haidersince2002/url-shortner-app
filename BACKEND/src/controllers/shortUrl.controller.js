@@ -5,6 +5,12 @@ import wrapAsyncHandler from "../utils/wrapAsyncHandler.js";
 export const createShortUrl = wrapAsyncHandler(async (req, res, next) => {
   const { url } = req.body;
 
+  if (!url || url.trim() === "") {
+    return res.status(400).send({
+      message: "URL is required",
+    });
+  }
+
   const shortUrl = await createShortUrlService(url);
 
   res.status(201).send({
@@ -16,7 +22,13 @@ export const createShortUrl = wrapAsyncHandler(async (req, res, next) => {
 export const redirectFromShortUrl = wrapAsyncHandler(async (req, res) => {
   const { id } = req.params;
   const url = await getShortUrlFromDb(id);
-  if (url) throw new Error("Short URL not found");
+
+  if (!url) {
+    return res.status(404).send({
+      message: "Short URL not found",
+    });
+  }
+
   res.redirect(url.fullUrl);
 });
 
